@@ -18,6 +18,14 @@ wget https://github.com/PWZER/govm/releases/download/v0.1.0/govm-linux-amd64 -O 
 chmod +x govm
 ```
 
+and set `PATH` environment variables
+
+```bash
+# 1. current version go binary will be linked to ${HOME}/.local/bin/go
+# 2. current version GOPATH directory will be linked to ${HOME}/.govm/go
+export PATH=${PATH}:${HOME}/.local/bin:${HOME}/.govm/go/bin
+```
+
 ## Usage
 
 ```bash
@@ -33,6 +41,6 @@ govm ls
 # install a version
 govm install go1.23.0
 
-# use a version
+# use or change the go version
 govm use go1.23.0
 ```
