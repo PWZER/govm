@@ -1,4 +1,7 @@
-GO_BUILD_COMMAND := go build -a -ldflags '-s -w -extldflags "-static"'
+VERSION := $(shell git describe --tags --always)
+GIT_COMMIT := $(shell git rev-parse --short HEAD)
+
+GO_BUILD_COMMAND := go build -a -ldflags '-s -w -extldflags "-static" -X "github.com/PWZER/govm/cmd.Version=$(VERSION)" -X "github.com/PWZER/govm/cmd.GitCommit=$(GIT_COMMIT)"'
 
 all: darwin linux
 
