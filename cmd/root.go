@@ -14,6 +14,24 @@ import (
 	"github.com/spf13/cobra"
 )
 
+type govmInfos []struct {
+	Key   string
+	Value string
+}
+
+func (infos govmInfos) show() {
+	maxKeyLen := 0
+	for _, info := range infos {
+		if len(info.Key) > maxKeyLen {
+			maxKeyLen = len(info.Key)
+		}
+	}
+
+	for _, info := range infos {
+		fmt.Printf("%s: %s\n", info.Key+strings.Repeat(" ", maxKeyLen-len(info.Key)), info.Value)
+	}
+}
+
 var rootCmd = &cobra.Command{
 	Use:          "govm",
 	Short:        "A simple version manager for golang.",
@@ -34,23 +52,12 @@ var rootCmd = &cobra.Command{
 			}
 		}
 
-		infos := map[string]string{
-			"GoVM version":           Version,
-			"GoVM git commit":        GitCommit,
-			"Working directory":      internal.Config.WorkingDir,
-			"Current use go version": version,
-		}
-
-		maxKeyLen := 0
-		for key := range infos {
-			if len(key) > maxKeyLen {
-				maxKeyLen = len(key)
-			}
-		}
-
-		for key, value := range infos {
-			fmt.Printf("%s: %s\n", key+strings.Repeat(" ", maxKeyLen-len(key)), value)
-		}
+		govmInfos{
+			{"GoVM version", Version},
+			{"GoVM git commit", GitCommit},
+			{"Working directory", internal.Config.WorkingDir},
+			{"Current use go version", version},
+		}.show()
 		return nil
 	},
 }
