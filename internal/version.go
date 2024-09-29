@@ -26,7 +26,7 @@ func UseGoVersion(version string) (err error) {
 
 	if !localVersionAlreadyInstalled(version) {
 		fmt.Printf("Local version %s not found, installing ...\n", version)
-		if err = Install(version, DefaultMirror); err != nil {
+		if err = Install(version); err != nil {
 			return err
 		}
 	}
@@ -54,4 +54,12 @@ func UseGoVersion(version string) (err error) {
 	}
 	fmt.Printf("Using go version %s\n", version)
 	return nil
+}
+
+func GetVersions(remote bool, all bool) (versions []*Version, err error) {
+	if remote {
+		return GetRemoteVersions(all)
+	} else {
+		return GetLocalVersions(all)
+	}
 }

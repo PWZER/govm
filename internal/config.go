@@ -6,7 +6,8 @@ import (
 )
 
 type ConfigType struct {
-	WorkingDir string `json:"working_dir"`
+	WorkingDir    string `json:"working_dir"`
+	InstallMirror string `json:"install_mirror"`
 }
 
 var Config ConfigType
@@ -15,7 +16,8 @@ func init() {
 	defaultWorkingDir := filepath.Join(getUserHomeDir(), ".govm")
 
 	Config = ConfigType{
-		WorkingDir: defaultWorkingDir,
+		WorkingDir:    defaultWorkingDir,
+		InstallMirror: "https://golang.google.cn/dl/",
 	}
 }
 

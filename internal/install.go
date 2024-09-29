@@ -12,10 +12,6 @@ import (
 	"strings"
 )
 
-const (
-	DefaultMirror = "https://golang.google.cn/dl/"
-)
-
 func init() {
 	http.DefaultTransport = &userAgentTransport{http.DefaultTransport}
 }
@@ -131,7 +127,7 @@ func downloadArchiveFile(saveFile, url, sha256sum string) error {
 	return nil
 }
 
-func Install(version string, mirror string) (err error) {
+func Install(version string) (err error) {
 	if localVersionAlreadyInstalled(version) {
 		return nil
 	}
@@ -142,7 +138,8 @@ func Install(version string, mirror string) (err error) {
 	}
 
 	saveFile := filepath.Join(getCacheDir(), remoteVersionFile.Filename)
-	downloadUrl := fmt.Sprintf("%s/%s", mirror, remoteVersionFile.Filename)
+	downloadUrl := fmt.Sprintf("%s/%s", Config.InstallMirror, remoteVersionFile.Filename)
+	fmt.Println("Downloading from", downloadUrl)
 	if err := downloadArchiveFile(saveFile, downloadUrl, remoteVersionFile.SHA256); err != nil {
 		return err
 	}

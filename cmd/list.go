@@ -63,14 +63,7 @@ var listCmd = &cobra.Command{
 	Long:         "list versions for golang.",
 	SilenceUsage: true,
 	RunE: func(cmd *cobra.Command, args []string) (err error) {
-		var getVersionsFunc func(bool) ([]*internal.Version, error)
-		if listRemoteVersions {
-			getVersionsFunc = internal.GetRemoteVersions
-		} else {
-			getVersionsFunc = internal.GetLocalVersions
-		}
-
-		versions, err := getVersionsFunc(!includeAllVersions)
+		versions, err := internal.GetVersions(listRemoteVersions, !includeAllVersions)
 		if err != nil {
 			return err
 		}

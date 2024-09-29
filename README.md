@@ -29,7 +29,7 @@ export PATH=${PATH}:${HOME}/.local/bin:${HOME}/.govm/go/bin
 ## Usage
 
 ```bash
-# display info
+# display govm info
 govm
 
 # list remote versions
@@ -40,6 +40,12 @@ govm ls
 
 # install a version
 govm install go1.23.0
+
+# install with proxy, support environment variable HTTP_PROXY, HTTPS_PROXY, NO_PROXY
+HTTP_PROXY=http://proxy:port govm install go1.23.0
+
+# install specify mirror
+govm install go1.23.0 --mirror https://golang.google.cn/dl/
 
 # use or change the go version
 govm use go1.23.0

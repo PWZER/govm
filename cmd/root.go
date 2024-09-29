@@ -34,8 +34,23 @@ var rootCmd = &cobra.Command{
 			}
 		}
 
-		fmt.Println("  Working directory:", internal.Config.WorkingDir)
-		fmt.Println("Current use version:", version)
+		infos := map[string]string{
+			"GoVM version":           Version,
+			"GoVM git commit":        GitCommit,
+			"Working directory":      internal.Config.WorkingDir,
+			"Current use go version": version,
+		}
+
+		maxKeyLen := 0
+		for key := range infos {
+			if len(key) > maxKeyLen {
+				maxKeyLen = len(key)
+			}
+		}
+
+		for key, value := range infos {
+			fmt.Printf("%s: %s\n", key+strings.Repeat(" ", maxKeyLen-len(key)), value)
+		}
 		return nil
 	},
 }
