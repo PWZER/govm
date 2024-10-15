@@ -100,6 +100,11 @@ func Upgrade(dummy bool, currentVersion string) (err error) {
 		return fmt.Errorf("downloaded file size mismatch, expect %d but got %d", useAsset.Size, stat.Size())
 	}
 
+	// make it executable
+	if err := os.Chmod(tmpPath, 0755); err != nil {
+		return err
+	}
+
 	// replace the binary
 	if err := os.Rename(tmpPath, binPath); err != nil {
 		return err
