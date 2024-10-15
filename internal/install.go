@@ -10,6 +10,8 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
+
+	"github.com/schollz/progressbar/v3"
 )
 
 func init() {
@@ -75,15 +77,18 @@ func downloadArchiveFileFromURL(saveFile, srcURL string) (err error) {
 	if res.StatusCode != http.StatusOK {
 		return errors.New(res.Status)
 	}
-	pw := &progressWriter{w: fd, total: res.ContentLength, output: os.Stderr}
-	n, err := io.Copy(pw, res.Body)
+
+	bar := progressbar.DefaultBytes(
+		res.ContentLength,
+		"Downloading",
+	)
+	n, err := io.Copy(io.MultiWriter(fd, bar), res.Body)
 	if err != nil {
 		return err
 	}
 	if res.ContentLength != -1 && res.ContentLength != n {
 		return fmt.Errorf("downloaded size mismatch, expect %d but got %d", res.ContentLength, n)
 	}
-	pw.update() // 100%
 	return fd.Close()
 }
 
