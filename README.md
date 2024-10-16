@@ -18,11 +18,13 @@ wget https://github.com/PWZER/govm/releases/download/v0.1.0/govm-linux-amd64 -O 
 chmod +x govm
 ```
 
-and set `PATH` environment variables
+and set `PATH` and `GOPATH` environment variables
 
 ```bash
-# 1. current version go binary will be linked to ${HOME}/.local/bin/go
-# 2. current version GOPATH directory will be linked to ${HOME}/.govm/go
+# govm will be linked current version gopath directory to ${HOME}/.govm/go
+export GOPATH=${HOME}/.govm/go
+
+# add govm binary install path and ${GOPATH}/bin to PATH
 export PATH=${PATH}:${HOME}/.local/bin:${HOME}/.govm/go/bin
 ```
 
