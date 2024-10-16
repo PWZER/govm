@@ -26,50 +26,55 @@ type latestVersion struct {
 	Assets  []versionAsset `json:"assets"`
 }
 
-func Upgrade(dummy bool, currentVersion string) (err error) {
+func getLatestVersion() (*latestVersion, error) {
 	req, err := http.NewRequest(http.MethodGet, latestVersionUrl, nil)
 	if err != nil {
-		return err
+		return nil, fmt.Errorf("failed to create request, err: %s", err)
 	}
 	req.Header.Set("Accept", "application/vnd.github+json")
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return err
+		return nil, fmt.Errorf("failed to get latest version, err: %s", err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("failed to get latest version: %s", resp.Status)
+		return nil, fmt.Errorf("failed to get latest version, status: %s", resp.Status)
 	}
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return err
+		return nil, fmt.Errorf("failed to read latest version, err: %s", err)
 	}
 
 	var latestVersion latestVersion
 	if err := json.Unmarshal(body, &latestVersion); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal latest version, err: %s", err)
+	}
+
+	return &latestVersion, nil
+}
+
+func Upgrade(dummy bool, currentVersion string) (err error) {
+	latestVersion, err := getLatestVersion()
+	if err != nil {
 		return err
 	}
 
 	if latestVersion.TagName == "" {
-		return fmt.Errorf("failed to get latest version")
+		return fmt.Errorf("got the latest version is empty")
 	}
 
 	if latestVersion.TagName <= currentVersion {
-		fmt.Println("already the latest version")
+		fmt.Printf("already the latest version, or current version: %s is newer than latest version: %s\n",
+			currentVersion, latestVersion.TagName)
 		return nil
 	}
 
 	if dummy {
-		fmt.Printf("Current version: %s, Latest version: %s\n", currentVersion, latestVersion.TagName)
-		return err
-	}
-
-	binPath, err := os.Executable()
-	if err != nil {
-		return err
+		fmt.Printf("current version: %s, latest version: %s\n", currentVersion, latestVersion.TagName)
+		return nil
 	}
 
 	var useAsset *versionAsset = nil
@@ -82,14 +87,19 @@ func Upgrade(dummy bool, currentVersion string) (err error) {
 	}
 
 	if useAsset == nil {
-		return fmt.Errorf("no asset found for %s", expectedAssetName)
+		return fmt.Errorf("latest version %s not found asset for %s", latestVersion.TagName, expectedAssetName)
 	}
 	fmt.Printf("Upgrade version %s => %s, downloading from %s\n",
 		currentVersion, latestVersion.TagName, useAsset.BrowserDownloadUrl)
 
+	binPath, err := os.Executable()
+	if err != nil {
+		return fmt.Errorf("failed to get binary path, err: %s", err)
+	}
+
 	tmpPath := filepath.Join(filepath.Dir(binPath), fmt.Sprintf(".%s.tmp", filepath.Base(binPath)))
-	if err := downloadArchiveFileFromURL(tmpPath, useAsset.BrowserDownloadUrl); err != nil {
-		return err
+	if err := downloadFileFromURL(tmpPath, useAsset.BrowserDownloadUrl); err != nil {
+		return fmt.Errorf("failed to download file, err: %s", err)
 	}
 
 	// check file size
@@ -102,12 +112,12 @@ func Upgrade(dummy bool, currentVersion string) (err error) {
 
 	// make it executable
 	if err := os.Chmod(tmpPath, 0755); err != nil {
-		return err
+		return fmt.Errorf("failed to make file executable, err: %s", err)
 	}
 
 	// replace the binary
 	if err := os.Rename(tmpPath, binPath); err != nil {
-		return err
+		return fmt.Errorf("failed to replace binary, err: %s", err)
 	}
 	fmt.Printf("upgrade to version %s successfully\n", latestVersion.TagName)
 	return nil

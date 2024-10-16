@@ -8,31 +8,11 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"runtime"
-	"strings"
 
 	"github.com/schollz/progressbar/v3"
 )
 
-func init() {
-	http.DefaultTransport = &userAgentTransport{http.DefaultTransport}
-}
-
-type userAgentTransport struct {
-	rt http.RoundTripper
-}
-
-func (uat userAgentTransport) RoundTrip(r *http.Request) (*http.Response, error) {
-	version := runtime.Version()
-	if strings.Contains(version, "devel") {
-		// Strip the SHA hash and date. We don't want spaces or other tokens (see RFC2616 14.43)
-		version = "devel"
-	}
-	r.Header.Set("User-Agent", "golang-x-build-version/"+version)
-	return uat.rt.RoundTrip(r)
-}
-
-func verifyArchiveFile(file, sha256sum string) error {
+func verifyFileSHA256(file, sha256sum string) (err error) {
 	f, err := os.Open(file)
 	if err != nil {
 		return err
@@ -51,7 +31,7 @@ func verifyArchiveFile(file, sha256sum string) error {
 	return nil
 }
 
-func downloadArchiveFileFromURL(saveFile, srcURL string) (err error) {
+func downloadFileFromURL(saveFile, srcURL string) (err error) {
 	fd, err := os.Create(saveFile)
 	if err != nil {
 		return err
@@ -63,11 +43,11 @@ func downloadArchiveFileFromURL(saveFile, srcURL string) (err error) {
 		}
 	}()
 	c := &http.Client{
-		Transport: &userAgentTransport{&http.Transport{
+		Transport: &http.Transport{
 			DisableCompression: true,
 			DisableKeepAlives:  true,
 			Proxy:              http.ProxyFromEnvironment,
-		}},
+		},
 	}
 	res, err := c.Get(srcURL)
 	if err != nil {
@@ -94,7 +74,7 @@ func downloadArchiveFileFromURL(saveFile, srcURL string) (err error) {
 
 func downloadArchiveFile(saveFile, url, sha256sum string) error {
 	if _, err := os.Stat(saveFile); err == nil {
-		if err := verifyArchiveFile(saveFile, sha256sum); err == nil {
+		if err := verifyFileSHA256(saveFile, sha256sum); err == nil {
 			return nil
 		}
 		os.Remove(saveFile)
@@ -113,7 +93,7 @@ func downloadArchiveFile(saveFile, url, sha256sum string) error {
 	}
 
 	// Download the archive file
-	if err := downloadArchiveFileFromURL(saveFile, url); err != nil {
+	if err := downloadFileFromURL(saveFile, url); err != nil {
 		return err
 	}
 
@@ -125,7 +105,7 @@ func downloadArchiveFile(saveFile, url, sha256sum string) error {
 	}
 
 	// Verify the downloaded archive file
-	if err := verifyArchiveFile(saveFile, sha256sum); err != nil {
+	if err := verifyFileSHA256(saveFile, sha256sum); err != nil {
 		os.Remove(saveFile)
 		return err
 	}

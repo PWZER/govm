@@ -43,10 +43,6 @@ func getLocalVersionBinaryPath(version string) string {
 	return filepath.Join(getLocalVersionInstallDir(version), "bin", "go"+binarySuffix())
 }
 
-func getLocalVersionGoPath(version string) string {
-	return filepath.Join(getWorkingDir(), "gopath", version)
-}
-
 func getLocalVersionInstallSuccessFile(version string) string {
 	return filepath.Join(getLocalVersionInstallDir(version), ".install-success")
 }

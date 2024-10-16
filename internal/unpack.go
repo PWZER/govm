@@ -4,7 +4,6 @@ import (
 	"archive/tar"
 	"archive/zip"
 	"compress/gzip"
-	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -149,6 +148,6 @@ func unpackArchiveFile(archiveFile, targetDir string) error {
 	case strings.HasSuffix(archiveFile, ".tar.gz"):
 		return unpackTarGz(archiveFile, targetDir)
 	default:
-		return errors.New("unsupported archive file")
+		return fmt.Errorf("unsupported archive file: %s", archiveFile)
 	}
 }
