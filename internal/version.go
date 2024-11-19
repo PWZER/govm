@@ -56,6 +56,17 @@ func UseGoVersion(version string) (err error) {
 	return nil
 }
 
+func UseIfNotLinkGoBin(version string) (err error) {
+	if !localVersionAlreadyInstalled(version) {
+		return fmt.Errorf("Local version %s not found", version)
+	}
+	goBin := getGoBinaryLinkFile()
+	if _, err = os.Stat(goBin); os.IsNotExist(err) {
+		return UseGoVersion(version)
+	}
+	return nil
+}
+
 func GetVersions(remote bool, all bool) (versions []*Version, err error) {
 	if remote {
 		return GetRemoteVersions(all)

@@ -29,6 +29,10 @@ var installCmd = &cobra.Command{
 				if err := internal.Install(version); err != nil {
 					return err
 				}
+
+				if err := internal.UseIfNotLinkGoBin(version); err != nil {
+					return err
+				}
 			}
 			return nil
 		}
