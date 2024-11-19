@@ -36,17 +36,17 @@ func UseGoVersion(version string) (err error) {
 		return err
 	}
 
-	// link gopath
-	goPath := filepath.Join(getUserHomeDir(), ".govm", "go")
-	if _, err = os.Stat(goPath); err == nil {
-		os.Remove(goPath)
-	}
-
 	versionGoPath := getLocalVersionGoPathDir(version)
 	if _, err = os.Stat(versionGoPath); os.IsNotExist(err) {
 		if err = os.MkdirAll(versionGoPath, 0755); err != nil {
 			return err
 		}
+	}
+
+	// link gopath
+	goPath := filepath.Join(getUserHomeDir(), ".govm", "go")
+	if _, err = os.Stat(goPath); err == nil {
+		os.Remove(goPath)
 	}
 
 	if err = os.Symlink(versionGoPath, goPath); err != nil {
