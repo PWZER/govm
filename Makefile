@@ -23,3 +23,6 @@ linux-arm64:
 	GOOS=linux GOARCH=arm64 $(GO_BUILD_COMMAND) -o bin/govm-linux-arm64 .
 
 linux: linux-amd64 linux-arm64
+
+install:
+	GOOS=$(shell uname | tr '[:upper:]' '[:lower:]') GOARCH=$(shell go env GOARCH) $(GO_BUILD_COMMAND) -o ~/.local/bin/govm .
