@@ -51,4 +51,18 @@ govm install go1.23.0 --mirror https://golang.google.cn/dl/
 
 # use or change the go version
 govm use go1.23.0
+
+# upgrade govm itself to the latest version
+govm upgrade
+
+# check the latest version without upgrading
+govm upgrade --dummy
+```
+
+`govm upgrade` resolves the latest version from the releases page without consuming
+the GitHub API rate limit. If it falls back to the GitHub API and hits the rate limit
+(60 requests/hour per IP), set `GITHUB_TOKEN` (or `GH_TOKEN`) to raise the limit:
+
+```bash
+GITHUB_TOKEN=<your-token> govm upgrade
 ```
